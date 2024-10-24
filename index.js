@@ -1,43 +1,91 @@
 const container = document.querySelector(".container");
-const pixelSize = 16;
-let width = 16;
-let height = 16;
+const CONTAINER_SIZE = 500;
+let pixelPerSide = 16;
 
 function setupGrid() {
-	for (let y = 0; y < height; y++) {
-		for (let x = 0; x < width; x++ ) {
+	for (let y = 0; y < pixelPerSide; y++) {
+		for (let x = 0; x < pixelPerSide; x++ ) {
+			let pixelHeight = 0;
+			let pixelWidth = 0;
 			const pixel = document.createElement("div");
 			pixel.classList.add("pixel");
-			if (y === 0)
+			if (y === 0) {
 				pixel.classList.add("top");
-			if (x === 0)
+				pixelHeight += 2;
+			}
+			if (x === 0) {
 				pixel.classList.add("left");
-			if (x === (width - 1))
+				pixelWidth += 2;
+			}
+			if (x === (pixelPerSide - 1)) {
 				pixel.classList.add("right");
-			if (y === (height - 1))
+				pixelWidth += 2;
+			}
+			if (y === (pixelPerSide - 1)) {
 				pixel.classList.add("bot");
+				pixelHeight += 2;
+			}
+			pixel.style.width = ((CONTAINER_SIZE / pixelPerSide) + pixelWidth) + "px";
+			pixel.style.height = ((CONTAINER_SIZE / pixelPerSide) + pixelHeight) + "px"
 			container.appendChild(pixel);
 		}
 	}
-	container.style.width = (width * pixelSize) + 6 + "px";
 }
 
 
 setupGrid();
 
-container.addEventListener("mouseover", (event) => {
-	if (event.target !== event.currentTarget) {
-		event.target.style.backgroundColor = "blue";
+let mousedown = false;
+let deletePixel = false;
+
+document.addEventListener("keydown", (event) => {
+	if (event.key === "Shift") {
+		deletePixel = true;
+		console.log(event.key);
+	}
+})
+
+document.addEventListener("keyup", (event) => {
+	if (event.key === "Shift") {
+		deletePixel = false;
+		console.log("shift up");
+	}
+})
+
+document.addEventListener("mouseover", (event) => {
+	if (event.target !== event.currentTarget && mousedown) {
+		if (deletePixel) {
+			event.target.style.backgroundColor = "white";
+		} else {
+			event.target.style.backgroundColor = "blue";
+		}
 	}
 	event.stopPropagation();
+})
+
+container.addEventListener("mousedown", (event) => {
+	event.preventDefault();
+	mousedown = true;
+	if (event.target !== event.currentTarget && mousedown) {
+		if (deletePixel) {
+			event.target.style.backgroundColor = "white";
+		} else {
+			event.target.style.backgroundColor = "blue";
+		}
+	}
+	event.stopPropagation();
+})
+
+container.addEventListener("mouseup", (e) => {
+	mousedown = false;
+	e.preventDefault();
 })
 
 const setter = document.querySelector(".setter");
 
 setter.addEventListener("click", () => {
-	width = +prompt("enter width");
-	height = +prompt("enter height");
-	if (width <= 100 && width >= 1 && height <= 100 && height >= 1) {
+	pixelPerSide = +prompt("Number of pixel per side");
+	if (pixelPerSide <= 100 && pixelPerSide >= 1) {
 		while(container.firstElementChild) {
 			container.removeChild(container.firstElementChild);
 		}
